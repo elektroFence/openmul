@@ -10,6 +10,7 @@ SUBDIRS = \
           application/hello \
           application/l2switch \
           application/makdi \
+          application/memtrack \
           application/fabric \
           application/cli \
           application/prism/agent/ \
@@ -28,6 +29,7 @@ DIST_SUBDIRS = \
                application/hello \
                application/l2switch \
                application/makdi \
+                application/memtrack \
                application/fabric \
                application/cli \
                application/prism/agent/ \

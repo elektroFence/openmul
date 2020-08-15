@@ -38,6 +38,7 @@ extern initcall_t __start_modvtyinit_sec, __stop_modvtyinit_sec;
 #define L2SW_APP_NAME "mul-l2sw"
 #define TR_APP_NAME "mul-tr"
 #define MAKDI_APP_NAME "mul-makdi"
+#define MTRACK_APP_NAME "mul-mtrack"
 #define FEMTO_APP_NAME "mul-femto"
 #define PRISM_APP_NAME "prism"
 #define CONX_APP_NAME "ConX"
@@ -48,10 +49,11 @@ extern initcall_t __start_modvtyinit_sec, __stop_modvtyinit_sec;
 #define L2SW_APP_COOKIE 0x5555 
 #define TR_APP_COOKIE 0x6666 
 #define MAKDI_APP_COOKIE 0x2222 
+#define MTRACK_APP_COOKIE 0x7777
 #define FEMTO_APP_COOKIE 0x0 
 #define PRISM_APP_COOKIE 0x3333 
 #define CONX_APP_COOKIE 0x4444 
-#define MUL_MAX_SERVICE_NUM 10 
+#define MUL_MAX_SERVICE_NUM 11 
 
 /* Controller app event notifications */
 typedef enum c_app_event {
