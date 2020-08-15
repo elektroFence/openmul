@@ -20,6 +20,7 @@
 #include "mul_common.h"
 #include "mul_vty.h"
 #include "l2switch.h"
+#include "malloc.h"
 
 extern struct mul_app_client_cb l2sw_app_cbs;
 int l2sw_mod_flow(l2sw_t *l2sw, l2fdb_ent_t *fdb, 
@@ -608,6 +609,21 @@ l2sw_learn_and_fwd(mul_switch_t *sw, struct flow *fl, uint32_t inport,
     uint32_t                    oport = OF_ALL_PORTS;
     struct of_pkt_out_params    parms;
     struct mul_act_mdata mdata;  
+
+    struct mallinfo mi;
+
+    mi = mallinfo();
+
+    c_log_info("###FC### Total non-mmapped bytes (arena):       %d\n", mi.arena);
+    c_log_info("# of free chunks (ordblks):            %d\n", mi.ordblks);
+    c_log_info("# of free fastbin blocks (smblks):     %d\n", mi.smblks);
+    c_log_info("# of mapped regions (hblks):           %d\n", mi.hblks);
+    c_log_info("Bytes in mapped regions (hblkhd):      %d\n", mi.hblkhd);
+    c_log_info("Max. total allocated space (usmblks):  %d\n", mi.usmblks);
+    c_log_info("Free bytes held in fastbins (fsmblks): %d\n", mi.fsmblks);
+    c_log_info("Total allocated space (uordblks):      %d\n", mi.uordblks);
+    c_log_info("Total free space (fordblks):           %d\n", mi.fordblks);
+    c_log_info("Topmost releasable block (keepcost):   %d\n", mi.keepcost);
 
     memset(&parms, 0, sizeof(parms));
 

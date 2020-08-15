@@ -29,6 +29,7 @@ function stop-command {
     sudo killall -9 prismagent > /dev/null 2>&1
     sudo killall -9 mulconx > /dev/null 2>&1
     sudo killall -9 multr > /dev/null 2>&1
+    sudo killall -9 mulmtrack > /dev/null 2>&1
     sudo killall -9 mul > /dev/null 2>&1
     sudo killall -9 lt-mulcli > /dev/null 2>&1
     sudo killall -9 lt-mull2sw > /dev/null 2>&1
@@ -77,10 +78,13 @@ case "$1" in
     ;;
 "l2switch")
     pushd  $curr_dir/mul/ >> /dev/null
-    sudo ./mul -d
+    sudo ./mul -d -p  -M 6172000
     popd >> /dev/null
     pushd  $curr_dir/application/l2switch/ >> /dev/null
     sudo ./mull2sw -V 6000 -d
+    popd >> /dev/null
+    pushd  $curr_dir/application/memtrack/ >> /dev/null
+    sudo ./mulmtrack -V 6001 -d
     popd >> /dev/null
     pushd  $curr_dir/application/cli/ >> /dev/null
     sudo ./mulcli -V 10000  -d

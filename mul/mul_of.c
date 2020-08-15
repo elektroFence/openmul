@@ -18,6 +18,7 @@
  */
 
 #include "mul.h"
+#include "malloc.h"
 
 extern ctrl_hdl_t ctrl_hdl;
 extern struct c_rlim_dat crl; 
@@ -5097,6 +5098,21 @@ c_mcast_app_packet_in(c_switch_t *sw, struct cbuf *b,
     c_switch_group_t *group;
     uint32_t cookie = 0;
     int ret = -1;
+
+    struct mallinfo mi;
+
+    mi = mallinfo();
+
+    c_log_info("###FC### Total non-mmapped bytes (arena):       %d\n", mi.arena);
+    c_log_info("# of free chunks (ordblks):            %d\n", mi.ordblks);
+    c_log_info("# of free fastbin blocks (smblks):     %d\n", mi.smblks);
+    c_log_info("# of mapped regions (hblks):           %d\n", mi.hblks);
+    c_log_info("Bytes in mapped regions (hblkhd):      %d\n", mi.hblkhd);
+    c_log_info("Max. total allocated space (usmblks):  %d\n", mi.usmblks);
+    c_log_info("Free bytes held in fastbins (fsmblks): %d\n", mi.fsmblks);
+    c_log_info("Total allocated space (uordblks):      %d\n", mi.uordblks);
+    c_log_info("Total free space (fordblks):           %d\n", mi.fordblks);
+    c_log_info("Topmost releasable block (keepcost):   %d\n", mi.keepcost);
 
     c_sw_hier_rdlock(sw);
 
