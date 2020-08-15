@@ -18,6 +18,7 @@
  */
 #include "mul.h"
 #include "random.h"
+#include <sys/resource.h>
 
 char c_path_name[C_MAX_PATH_NAME_LEN+1];
 
@@ -58,6 +59,7 @@ usage(char *progname, int status)
     printf("-d        : Daemon Mode\n");
     printf("-S <num>  : Number of switch handler threads\n");
     printf("-A <num>  : Number of app handler threads\n");
+    printf("-M <size> : Number of max memory size in KB \n");
     printf("-P <port> : Port Number for incoming switch connection\n");
     printf("-H <peer> : Peer IP address for HA\n");
     printf("-n        : Don't install default flows in switch\n");
@@ -130,7 +132,9 @@ main(int argc, char **argv)
     int         loop_detect = 0;
     int         bench_en = 0;
     int         no_strict = 0; 
+    int         max_memory = 0;
     uint8_t     ver = 0;
+    struct rlimit limit;
 
     /* Set umask before anything for security */
     umask (0027);
@@ -142,7 +146,7 @@ main(int argc, char **argv)
     while (1) {
         int opt;
 
-        opt = getopt_long (argc, argv, "udhspnxbS:A:P:H:l:O:N", longopts, 0);
+        opt = getopt_long (argc, argv, "udhspnxbS:M:A:P:H:l:O:N", longopts, 0);
         if (opt == EOF)
             break;
 
@@ -159,6 +163,21 @@ main(int argc, char **argv)
             sthreads = atoi(optarg);
             if (sthreads < 0 || sthreads > C_MAX_THREADS) {
                 printf ("Illegal:Too many switch threads\n");    
+                exit(0);
+            }
+            break;
+        case 'M':
+            max_memory = atoi(optarg) * 1024;
+            if (max_memory < 0) {
+                printf ("Illegal: you have to provide a positive value (KB)\n");    
+                exit(0);
+            }
+
+            limit.rlim_cur = max_memory;
+            limit.rlim_max = max_memory;
+            printf("SET max memory : %d KB\n", max_memory/1024);
+            if (setrlimit(RLIMIT_AS, &limit) != 0) {
+                printf("setrlimit() failed with errno=%d\n", errno);
                 exit(0);
             }
             break;
