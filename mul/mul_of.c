@@ -5251,6 +5251,7 @@ of10_recv_packet_in(c_switch_t *sw, struct cbuf *b)
     mdata.pkt_len = pkt_len;
     mdata.buffer_id = ntohl(opi->buffer_id);
 
+    c_log_info("PACKET In (len: %d)", pkt_len);
     sw->fp_ops.fp_fwd(sw, b, opi->data, pkt_len, &mdata, in_port);
 
     return;
@@ -7551,7 +7552,19 @@ of131_recv_packet_in(c_switch_t *sw, struct cbuf *b)
     uint8_t *data;
     ssize_t match_len;
     struct c_pkt_in_mdata mdata; 
+#ifndef MEMTACK 
+    struct mallinfo mi;
+    struct ip_header *ip;
 
+    mi = mallinfo();
+
+    c_log_info("Total non-mmapped bytes (arena):       %d", mi.arena);
+    c_log_info("# of free fastbin blocks (smblks):     %d", mi.smblks);
+    c_log_info("# of mapped regions (hblks):           %d", mi.hblks);
+    c_log_info("Bytes in mapped regions (hblkhd):      %d", mi.hblkhd);
+    c_log_info("Total allocated space (uordblks):      %d", mi.uordblks);
+    c_log_info("Total free space (fordblks):           %d\n", mi.fordblks);
+#endif
     if (sw->rx_lim_on && c_rlim(&sw->rx_rlim)) {
         sw->rx_pkt_in_dropped++;
         return;
@@ -7569,6 +7582,7 @@ of131_recv_packet_in(c_switch_t *sw, struct cbuf *b)
     pkt_len = ntohs(opi->header.length) - pkt_ofs;
     data = INC_PTR8(opi, pkt_ofs);
 
+    c_log_info("PACKET In (len: %d)", pkt_len);
     if(!sw->fp_ops.fp_fwd ||
         (pkt_len && 
          of_flow_extract(data, &fl[0], ntohl(fl[0].in_port), 

@@ -121,21 +121,31 @@ memtrack_packet_in(mul_switch_t *sw UNUSED,
                 uint8_t *raw UNUSED,
                 size_t pkt_len UNUSED)
 {
-    c_log_info("memtrack app - packet-in from network");
     struct mallinfo mi;
+    struct ip_header *ip;
 
     mi = mallinfo();
 
-    c_log_info("###FC### Total non-mmapped bytes (arena):       %d\n", mi.arena);
-    c_log_info("# of free chunks (ordblks):            %d\n", mi.ordblks);
-    c_log_info("# of free fastbin blocks (smblks):     %d\n", mi.smblks);
-    c_log_info("# of mapped regions (hblks):           %d\n", mi.hblks);
-    c_log_info("Bytes in mapped regions (hblkhd):      %d\n", mi.hblkhd);
-    c_log_info("Max. total allocated space (usmblks):  %d\n", mi.usmblks);
-    c_log_info("Free bytes held in fastbins (fsmblks): %d\n", mi.fsmblks);
-    c_log_info("Total allocated space (uordblks):      %d\n", mi.uordblks);
+    c_log_info("PACKET In (len: %d)", pkt_len);
+    ip = INC_PTR8(raw, sizeof(struct eth_header) + 
+                      (fl->dl_vlan ? VLAN_HEADER_LEN : 0));
+
+    c_log_info("PACKET In src %d.%d.%d.%d, dst %d.%d.%d.%d", 
+        (ip->ip_src >> 24) & 0xFF, 
+        (ip->ip_src >> 16) & 0xFF, 
+        (ip->ip_src >> 8) & 0xFF, 
+        (ip->ip_src & 0xFF), 
+        (ip->ip_dst >> 24) & 0xFF, 
+        (ip->ip_dst >> 16) & 0xFF, 
+        (ip->ip_dst >> 8) & 0xFF, 
+        (ip->ip_dst & 0xFF)); 
+
+    c_log_info("Total non-mmapped bytes (arena):       %d", mi.arena);
+    c_log_info("# of free fastbin blocks (smblks):     %d", mi.smblks);
+    c_log_info("# of mapped regions (hblks):           %d", mi.hblks);
+    c_log_info("Bytes in mapped regions (hblkhd):      %d", mi.hblkhd);
+    c_log_info("Total allocated space (uordblks):      %d", mi.uordblks);
     c_log_info("Total free space (fordblks):           %d\n", mi.fordblks);
-    c_log_info("Topmost releasable block (keepcost):   %d\n", mi.keepcost);
 
     return;
 }
