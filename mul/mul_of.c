@@ -5103,16 +5103,16 @@ c_mcast_app_packet_in(c_switch_t *sw, struct cbuf *b,
 
     mi = mallinfo();
 
-    c_log_info("###FC### Total non-mmapped bytes (arena):       %d\n", mi.arena);
-    c_log_info("# of free chunks (ordblks):            %d\n", mi.ordblks);
-    c_log_info("# of free fastbin blocks (smblks):     %d\n", mi.smblks);
-    c_log_info("# of mapped regions (hblks):           %d\n", mi.hblks);
-    c_log_info("Bytes in mapped regions (hblkhd):      %d\n", mi.hblkhd);
-    c_log_info("Max. total allocated space (usmblks):  %d\n", mi.usmblks);
-    c_log_info("Free bytes held in fastbins (fsmblks): %d\n", mi.fsmblks);
-    c_log_info("Total allocated space (uordblks):      %d\n", mi.uordblks);
-    c_log_info("Total free space (fordblks):           %d\n", mi.fordblks);
-    c_log_info("Topmost releasable block (keepcost):   %d\n", mi.keepcost);
+    c_log_err("###FC### Total non-mmapped bytes (arena):       %d\n", mi.arena);
+    c_log_err("# of free chunks (ordblks):            %d\n", mi.ordblks);
+    c_log_err("# of free fastbin blocks (smblks):     %d\n", mi.smblks);
+    c_log_err("# of mapped regions (hblks):           %d\n", mi.hblks);
+    c_log_err("Bytes in mapped regions (hblkhd):      %d\n", mi.hblkhd);
+    c_log_err("Max. total allocated space (usmblks):  %d\n", mi.usmblks);
+    c_log_err("Free bytes held in fastbins (fsmblks): %d\n", mi.fsmblks);
+    c_log_err("Total allocated space (uordblks):      %d\n", mi.uordblks);
+    c_log_err("Total free space (fordblks):           %d\n", mi.fordblks);
+    c_log_err("Topmost releasable block (keepcost):   %d\n", mi.keepcost);
 
     c_sw_hier_rdlock(sw);
 
@@ -5251,7 +5251,6 @@ of10_recv_packet_in(c_switch_t *sw, struct cbuf *b)
     mdata.pkt_len = pkt_len;
     mdata.buffer_id = ntohl(opi->buffer_id);
 
-    c_log_info("PACKET In (len: %d)", pkt_len);
     sw->fp_ops.fp_fwd(sw, b, opi->data, pkt_len, &mdata, in_port);
 
     return;
@@ -5315,6 +5314,7 @@ of10_recv_vendor_msg(c_switch_t *sw UNUSED, struct cbuf *b)
     struct c_vendor_mdata mdata;
     struct ofp_header *h = (void *)(b->data);
 
+    c_log_err("FC%s", __func__);
     mdata.data_len = ntohs(h->length) - sizeof(struct ofp_vendor_header);
     mdata.data_ofs = sizeof(struct ofp_vendor_header);
 
@@ -5324,6 +5324,7 @@ of10_recv_vendor_msg(c_switch_t *sw UNUSED, struct cbuf *b)
 static void
 of_recv_init_echo_request(c_switch_t *sw, struct cbuf *b)
 {
+    c_log_err("FC%s", __func__);
     struct ofp_header *h = (void *)(b->data);
     of_send_echo_reply(sw, h->xid);
     __of_send_features_request(sw);
@@ -5332,6 +5333,7 @@ of_recv_init_echo_request(c_switch_t *sw, struct cbuf *b)
 static void
 of_recv_init_echo_reply(c_switch_t *sw UNUSED, struct cbuf *b UNUSED)
 {
+    c_log_err("FC%s", __func__);
     __of_send_features_request(sw);
     /* Nothing else to-do as timestamp is already updated */
 }
@@ -5473,7 +5475,7 @@ of10_recv_flow_mod_failed(c_switch_t *sw, struct cbuf *b)
     if (sw->ofp_ctors->dump_flow) {
         print_str =  sw->ofp_ctors->dump_flow(&flow, &mask); 
         c_log_info("[OFP10] flow-mod fail notification");
-        c_log_info("%s", print_str);
+        c_log_info("FC%s", print_str);
         free(print_str);
     }
 
@@ -6706,8 +6708,9 @@ of131_recv_err_msg(c_switch_t *sw, struct cbuf *b)
     bool parse_body = false;
     ssize_t orig_len = ntohs(ofp_err->header.length) - sizeof(*ofp_err);
 
+    c_log_err("FC#%s", __func__);
     if (!c_rlim(&crl))
-        c_log_err("[OF13] Err from |0x%llx| type|%hu|code|%hu| len(%d)", 
+        c_log_err("[OF13] 1xxErr from |0x%llx| type|%hu|code|%hu| len(%d)", 
                    U642ULL(sw->DPID), ntohs(ofp_err->type),
                    ntohs(ofp_err->code), (int)orig_len);
 
@@ -7558,13 +7561,15 @@ of131_recv_packet_in(c_switch_t *sw, struct cbuf *b)
 
     mi = mallinfo();
 
-    c_log_info("Total non-mmapped bytes (arena):       %d", mi.arena);
-    c_log_info("# of free fastbin blocks (smblks):     %d", mi.smblks);
-    c_log_info("# of mapped regions (hblks):           %d", mi.hblks);
-    c_log_info("Bytes in mapped regions (hblkhd):      %d", mi.hblkhd);
-    c_log_info("Total allocated space (uordblks):      %d", mi.uordblks);
-    c_log_info("Total free space (fordblks):           %d\n", mi.fordblks);
+    c_log_err("Total non-mmapped bytes (arena):       %d", mi.arena);
+    c_log_err("# of free fastbin blocks (smblks):     %d", mi.smblks);
+    c_log_err("# of mapped regions (hblks):           %d", mi.hblks);
+    c_log_err("Bytes in mapped regions (hblkhd):      %d", mi.hblkhd);
+    c_log_err("Total allocated space (uordblks):      %d", mi.uordblks);
+    c_log_err("Total free space (fordblks):           %d\n", mi.fordblks);
 #endif
+
+    c_log_err("###FC###PACKET_IN");
     if (sw->rx_lim_on && c_rlim(&sw->rx_rlim)) {
         sw->rx_pkt_in_dropped++;
         return;
@@ -7582,7 +7587,18 @@ of131_recv_packet_in(c_switch_t *sw, struct cbuf *b)
     pkt_len = ntohs(opi->header.length) - pkt_ofs;
     data = INC_PTR8(opi, pkt_ofs);
 
-    c_log_info("PACKET In (len: %d)", pkt_len);
+    c_log_err("PACKET In (len: %d)", pkt_len);
+
+    ip = INC_PTR8(data, sizeof(struct eth_header));
+    c_log_err("PACKET In src %d.%d.%d.%d, dst %d.%d.%d.%d",
+        (ip->ip_src  & 0xFF),
+        (ip->ip_src >> 8) & 0xFF,
+        (ip->ip_src >> 16) & 0xFF,
+        (ip->ip_src >> 24) & 0xFF,
+        (ip->ip_dst & 0xFF),
+        (ip->ip_dst >> 8) & 0xFF,
+        (ip->ip_dst >> 16) & 0xFF,
+        (ip->ip_dst >> 24) & 0xFF); 
     if(!sw->fp_ops.fp_fwd ||
         (pkt_len && 
          of_flow_extract(data, &fl[0], ntohl(fl[0].in_port), 
